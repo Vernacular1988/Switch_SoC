@@ -1,0 +1,70 @@
+////////////////////////////////////////////////////////////////////////
+// Associative Memory Simulator in SystemC 2011-06-12
+// Steven P. Levitan
+// University of Pittsburgh
+// levitan@pitt.edu
+// Made possible with a Gift from Intel Corporation
+////////////////////////////////////////////////////////////////////////
+
+// Using SystemC version 2.2.0 and gtkwave 3.3.22
+// 2011-06-12
+// V1
+// Started code decided to make the array a single module 
+// with an array of words rather than a array of modules
+// this will be closer to the analog implementation of an array of oscilators
+// that directly interact.
+// V2 has basic comparison working
+
+// V3 is first "working" version with command interpreter (SWITCH statment)
+
+// 2011-06-26
+// V4 has addtional commands 
+// To Do: 
+// 1 Move command list and command types from cam and driver to its own 
+//   new class. this might also make it easier to get into the waveform
+//   viewer and remove the need for stupid echo code.  [constants.h]
+// 2 Decide and impement on Tag enabled/gated searches
+// 3 Implement better Some/None and Count responders
+// 4 Finish implementing K-nearest using hamming distances [DONE] 
+// 5 New higher level command interpreter (that drives driver) 
+// 6 Rebuild the CAM switch statement to use functions vs long code blocks
+// 7 use program file [done]
+// 
+// 2011-6-28 
+// v5 
+// v5 added more functionality for WTA and some code cleanup 
+// (using constants.h) 
+// but the attempt to make a module for knn as a friend of amem did not work. 
+// This version is left as "broken" for reference. 
+//
+// 2011-6-29 
+// v6
+// plan to make knn a member function of amem
+// Better we decide to make a different function "read next best match"
+// which is just like WTA but uses the Tags to read out matches in decreasing
+// order of degree of match, So you can take K nearest for any K.
+//
+// v7
+// New main.cc and new driver.cc, so program is read from a 
+// file. Simple parsing uses STL strings and maps for command names. 
+// This works with more cleanup of constants.h for op codes and externs. 
+// Note file 'trans' in directory is for the gtkwave simulator to 
+// translate opcodes back to string names
+// file.cc and driver.cc are utlities and not part of main application
+//
+// 2011-7-6
+// v8
+// Re-arranged directory to put character code generator in sub-dir.
+// This utility is used to take bitmaps into hex values to load into the array
+// such that we can do pattern matching on images of hex digits. 
+// See for example prog3. 
+// plan:
+// Add outputs for degree of match values during read operations. 
+// 
+// Update some/none to be computed for all assocociative operations
+// that affect the tag bits (should be
+// a big OR gate) 
+//
+// Work on count responders using tree adder to reflect likely 
+// hardware implementations?
+//

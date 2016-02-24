@@ -1,0 +1,25 @@
+These are attempts to use the PLL block in the TUV_AMS_Library BB
+
+V0 just called the PLL and got the error 
+Error: SystemC-AMS: Method set_delay of port: pll1.vco_sub.sca_tdf_out_0 
+can only be called in the context of set_attributes of the parent module 
+(see LRM clause 4.1.1.4.5, 4.1.1.5.5)
+In file: /home/steve/SystemC/systemc-ams-1.0Beta2/include/scams/impl/predefined_moc/tdf/sca_tdf_port_impl.h:414
+
+V1 took a copy of the PLL code and attempted to hack the set_delay problem
+unsucessfully.
+
+V2 added an explicit delay element into the PLL in a flat version of
+everything this worked after fixing the code to insert the initial
+value to the output (which is needed since there is a delay) one must
+use out.initialize(value) vs out.write(value) to set the value on port
+"out".
+
+V3 is to package that back up, which is not easy - so the delay and
+sink are clearly done, but the pll is still a problem. basically
+hierarhcy for analog blocks are not supported. So the Pll needs to be
+in a digital block (or in an analog block in a digital block) and then
+the rest need to be in another block and then connected with digital
+signals. (for V4..)
+
+

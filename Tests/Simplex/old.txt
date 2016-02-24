@@ -1,0 +1,18 @@
+
+//Makefile
+MODULE = demo
+SRCS = channel.cc display.cc packet.cc receiver.cc timer.cc transmit.cc main.cc
+OBJS = $(SRCS:.cc=.o)
+include ./Makefile.defs
+
+
+//Makefile.defs
+TARGET_ARCH = gccsparcOS5
+CC = g++
+OPT =
+DEBUG = -g
+SYSTEMC = /remote/dtg403/dperry/systemc-2.0
+INCDIR = -I. -I.. -I$(SYSTEMC)/include
+LIBDIR = -L. -L.. -L$(SYSTEMC)/lib-$(TARGET_ARCH)
+CFLAGS = -Wall $(DEBUG) $(OPT) $(INCDIR) $(LIBDIR)
+LIBS = -lsystemc -lm $(EXTRA_LIBS)

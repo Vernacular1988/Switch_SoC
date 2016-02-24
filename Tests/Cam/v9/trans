@@ -1,0 +1,17 @@
+#
+# commands should match constants.h
+# Hex String
+0 ERR
+1 COMP
+2 AREAD
+3 AWRITE
+4 READ 
+5 WRITE 
+6 STAG 
+7 CTAG
+8 ITAG
+9 SEL1ST 
+A HAMM 
+B WTA
+C READNB
+#

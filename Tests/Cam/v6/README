@@ -1,0 +1,46 @@
+////////////////////////////////////////////////////////////////////////
+// Associative Memory Simulator in SystemC 2011-06-12
+// Steven P. Levitan
+// University of Pittsburgh
+// levitan@pitt.edu
+// Made possible with a Gift from Intel Corporation
+////////////////////////////////////////////////////////////////////////
+
+// Using SystemC version 2.2.0 and gtkwave 3.3.22
+// 2011-06-12
+// V1
+// Started code decided to make the array a single module 
+// with an array of words rather than a array of modules
+// this will be closer to the analog implementation of an array of oscilators
+// that directly interact.
+// V2 has basic comparison working
+
+// V3 is first "working" version with command interpreter (SWITCH statment)
+
+// 2011-06-26
+// V4 has addtional commands 
+// To Do: 
+// 1 Move command list and command types from cam and driver to its own 
+//   new class. this might also make it easier to get into the waveform
+//   viewer and remove the need for stupid echo code.  [constants.h]
+// 2 Decide and impement on Tag enabled/gated searches
+// 3 Implement better Some/None and Count responders
+// 4 Finish implementing K-nearest using hamming distances [DONE] 
+// 5 New higher level command interpreter (that drives driver) 
+// 6 Rebuild the CAM switch statement to use functions vs long code blocks
+// 
+// 2011-6-28 
+// v5 
+// v5 added more functionality for WTA and some code cleanup (using constants.h) 
+// but the attempt to make a module for knn as a friend of amem did not work. This version is 
+// left as "broken" for reference. 
+// 2011-6-29 
+// V6
+// plan to make knn a member function of amem
+// Better we decide to make a different function "read next best match"
+// which is just like WTA but uses the Tags to read out matches in decreasing
+// order of degree of match, So you can take K nearest for any K.
+//
+// v7
+// New program in driver.cc should be done with a file 
+//

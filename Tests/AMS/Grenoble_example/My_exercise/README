@@ -1,0 +1,11 @@
+// 23-July-2010 levitan@pitt.edu
+// this directory has my best guess of what the 
+// Fraunhofer Institut Integrierte Schaltungen - EAS Dresden 
+// wanted people to do for their tutorial from the Grenoble workshop
+// there was not much hints on the slides that went with the example
+// but this "works"
+// Note that gtkwave does display the analog wavfoms as waves, 
+// but that it scales all the waves to use the space (even if you add analog
+// spacers) so you do not see the amplititude of the output of 
+// the filter chanve much. You have to look at the values themselves.
+//

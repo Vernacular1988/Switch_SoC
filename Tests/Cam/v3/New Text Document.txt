@@ -1,0 +1,5 @@
+// Required by sc_signal<> and sc_fifo<>
+command_type& operator =(const command_type& rhs) {
+	      this = cmd;
+	      return *this;
+}

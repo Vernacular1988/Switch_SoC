@@ -1,0 +1,5 @@
+MODULE = demo
+SRCS = channel.cc display.cc packet.cc receiver.cc timer.cc transmit.cc main.cc
+OBJS = $(SRCS:.cc=.o)
+include ./Makefile.defs
+

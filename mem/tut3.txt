@@ -1,0 +1,468 @@
+#include <systemc.h>
+#include <signal.h>
+
+//
+// changes: levitan@pitt.edu 23-Jan-2012
+// for some reason they thought that they could use inouts with unresovled
+// signals.
+// You can get away with this in VHDL but not in SystemC (this version)
+//
+// This seems to be an issue.
+// so the memory data bus was converted to two busses
+// also the signal MemFunc was written to by two processes in the cpu 
+// this was also a problem so a new proces was hacked to time mux these
+// 
+// the other way to do this is with resovled signals but those are only
+// pre-defined for logic vectors see the tutorial_t2.cc here for a
+// almost working solution. (the memfunc values step on themselves)
+// 
+
+#define PRINT_WHILE_RUN
+#define GEN_INVALID_ADDRESSES
+
+#define MEM_SIZE              512
+#define MEM_ERR_INV_ADDRESS   1
+
+/*-----------------------------------*/
+
+SC_MODULE(Memory) {
+
+public:
+    /* Types */
+
+    enum Function {
+        FUNC_NONE,
+        FUNC_READ,
+        FUNC_WRITE
+    };
+
+    enum RETSignal {
+        RSIG_NONE,
+        RSIG_READ_FIN,
+        RSIG_WRITE_FIN,
+        RSIG_ERROR
+    };
+
+    /* Ports */
+
+    sc_in<bool>       Port_CLK;
+    sc_in<Function>   Port_Func;
+
+    sc_in<int>        Port_Addr;
+
+    sc_in<int>     Port_Data_in;
+    sc_out<int>   Port_Data_out;
+
+    sc_out<RETSignal> Port_DoneSig;
+
+    /* Constructor */
+    SC_CTOR(Memory) {
+        /* Setup Module's Method Process */
+
+        SC_METHOD(execute);     
+        sensitive << Port_CLK.neg();
+
+        /* Data members Initialization */
+        m_clkCnt  = 0;
+        m_curAddr = 0;
+        m_curData = 0;
+        m_curFunc = Memory::FUNC_NONE;
+
+        m_data = new int[MEM_SIZE];
+
+        /* Initialize Counters */
+        m_writesCnt = 0;
+        m_readsCnt  = 0;
+        m_errorsCnt = 0;
+        m_errorCode = 0;
+    }
+
+    ~Memory() {
+        delete [] m_data;
+    }
+
+    /* Other Functions */
+
+    int getErrorCode() {
+        return m_errorCode;
+    }
+
+    int getWritesCount() {
+        return m_writesCnt;
+    }
+
+    int getReadsCount() {
+        return m_readsCnt;
+    }
+
+    int getErrorsCount() {
+        return m_errorsCnt;
+    }
+
+    int getRequestsCount() {
+        return m_readsCnt  +
+               m_writesCnt + m_errorsCnt;
+    }
+
+private:
+    /* Data Members */
+
+    int       m_clkCnt;
+    int       m_curAddr;
+    int       m_curData;
+    Function  m_curFunc;
+
+
+    int* m_data;
+    int  m_errorCode;
+
+    int  m_writesCnt;
+    int  m_readsCnt;
+    int  m_errorsCnt;
+
+    /* Functions */
+
+    /**
+     * Checks if the address
+     * is valid.
+     */
+    void checkAddress() {
+         if(m_curAddr >= MEM_SIZE)
+             m_errorCode = MEM_ERR_INV_ADDRESS;
+         else
+             m_errorCode = 0;
+    }
+
+    /**
+     * Performs the
+     * READ function.
+     */
+
+    RETSignal read() {
+        checkAddress();
+
+        if(m_errorCode == 0) {
+            Port_Data_out.write(m_data[m_curAddr]);
+
+            m_readsCnt++;
+            return RSIG_READ_FIN;
+        } else {
+            m_errorsCnt++;
+            return RSIG_ERROR;
+        }
+    }
+
+    /**
+     * Performs the
+     * WRITE function.
+     */
+    RETSignal write() {
+        checkAddress();
+
+        if(m_errorCode == 0) {
+            m_data[m_curAddr] = m_curData;
+            
+            m_writesCnt++;
+            return RSIG_WRITE_FIN;
+        } else {
+            m_errorsCnt++;
+            return RSIG_ERROR;
+        }
+    }
+
+    /**
+     * Module's Method Process
+     * driven by the clock
+     */
+
+    void execute() {
+        if(m_curFunc != Memory::FUNC_NONE) {
+            m_clkCnt++;
+
+            if(m_clkCnt == 100) {
+                RETSignal retSig = Memory::RSIG_ERROR;
+
+                switch(m_curFunc) {
+                   case Memory::FUNC_READ  : { retSig = read();  break; }
+                   case Memory::FUNC_WRITE : { retSig = write(); break; }
+                }
+
+                Port_DoneSig.write(retSig);
+
+#if defined(PRINT_WHILE_RUN)
+                cout << "Memory : Finished " 
+                     << (m_curFunc == Memory::FUNC_WRITE ? "write" : "read")
+                     << " request. Addr = " <<  m_curAddr
+                     << "  Time = " << sc_time_stamp() << endl;
+#endif
+
+                m_clkCnt  = 0;
+                m_curFunc = Memory::FUNC_NONE;
+            }
+
+            return;
+        }
+
+        if(Port_Func.read() == Memory::FUNC_NONE) {
+            return;
+        }
+
+        // Read request's data
+        m_curFunc = Port_Func.read();
+        m_curAddr = Port_Addr.read();
+        m_curData = Port_Data_in.read();
+
+        // Reset return signal
+        Port_DoneSig.write(Memory::RSIG_NONE);
+
+#if defined(PRINT_WHILE_RUN)
+        cout << "Memory : Received " 
+             << (m_curFunc == Memory::FUNC_WRITE ? "write" : "read")
+             << " request. Addr = " <<  m_curAddr
+             << "  Time = " << sc_time_stamp() << endl;
+#endif
+    }
+
+}; // End of module Memory.
+
+/*-----------------------------------*/
+
+SC_MODULE(CPU) {
+
+public:
+    /* Ports */
+
+    sc_in<bool>               Port_CLK;
+    sc_in<Memory::RETSignal>  Port_MemDone;
+    sc_out<Memory::Function>  Port_MemFunc;
+    sc_out<int>               Port_MemAddr;
+
+    sc_out<int>             Port_MemData_out;
+    sc_in<int>              Port_MemData_in;
+
+    /* Constructor */
+
+    SC_CTOR(CPU) {
+         SC_METHOD(execCycle);
+         sensitive << Port_CLK.pos();
+         dont_initialize();
+
+         SC_METHOD(memDone);
+         sensitive << Port_MemDone;
+         dont_initialize();
+
+	 SC_METHOD(MemFunMux);
+	 sensitive << MemRun << MemPause;
+	 dont_initialize();
+
+         m_waitMem = false;
+    }
+
+private:
+    bool m_waitMem;
+    sc_signal<Memory::Function>  MemRun, MemPause;
+    sc_signal<Memory::RETSignal> MemRetSig;
+
+    /**
+     * Generates a random 
+     * memory request.
+     */
+    Memory::Function getrndfunc() {
+        int rndnum=(rand() % 10);
+
+        if(rndnum < 5)
+            return Memory::FUNC_READ;
+        else
+            return Memory::FUNC_WRITE;
+    }
+
+    /**
+     * Generates a random 
+     * memory address.
+     */
+    int getRndAddress() {
+#ifndef GEN_INVALID_ADDRESSES
+        return (rand() % MEM_SIZE);
+#else
+        return (rand() % (MEM_SIZE + 100));
+#endif
+    }
+
+    /**
+     * Generates some random 
+     * data to store to or load from memory.
+     */
+    int getRndData() {
+       return rand();
+    }
+
+    // since we can not have two drivers for a signal
+    // (even inside one module)
+    // we need a control multiplexer to set/reset the 
+    // memory operation from write-or-read to none
+    void MemFunMux() {
+      if (MemRun.event()) Port_MemFunc.write(MemRun);
+      if (MemPause.event()) Port_MemFunc.write(MemPause);
+      return;
+    }
+
+    void execCycle() {
+        if(m_waitMem) {
+            return;
+        }
+
+        /**
+         * Select random a function, 
+         * address and data
+         */
+
+        int addr           = getRndAddress();
+        Memory::Function f = getrndfunc();
+
+
+        MemRun.write(f);
+        Port_MemAddr.write(addr);
+
+        /**
+         * Send some data if 
+         * function is WRITE 
+         */
+        if(f == Memory::FUNC_WRITE)
+            Port_MemData_out.write(getRndData());
+
+        m_waitMem = true;
+
+#if defined(PRINT_WHILE_RUN)
+        cout << "CPU : Sent " 
+             << (f == Memory::FUNC_WRITE ? "write" : "read")
+             << " request. Addr = " <<  addr
+             << "  Time = " << sc_time_stamp() << endl;
+#endif
+    }
+
+    /**
+     * Process that is executed
+     * when the memory finishes handling a 
+     * request.
+     */
+    void memDone() {
+      MemRetSig = Port_MemDone.read();
+        if(MemRetSig == Memory::RSIG_NONE) {
+            return;
+        }                
+
+#if defined(PRINT_WHILE_RUN)
+        cout << "CPU : Received FIN_SIG from memory."
+             << "  Time = " << sc_time_stamp() << endl;
+	if (MemRetSig == Memory::RSIG_ERROR)
+	  cout << "ERROR: transaction had an invalid address " << endl;
+
+#endif
+
+        m_waitMem = false;
+
+        // Reset memory's function
+        MemPause.write(Memory::FUNC_NONE);
+    }
+};
+
+/*-----------------------------------*/
+
+/**
+ * SIGINT and SIGTERM
+ * signals' handler
+ */
+
+void sig_handler(int sigNum)
+{
+    sc_stop();
+}
+
+/*-----------------------------------*/
+/* Program's Entry Point */
+
+int sc_main(int argc, char* argv[])
+{
+    /**
+     * Register SIGINT and SIGTERM
+     * signal handlers 
+     */
+
+    signal(SIGINT,  sig_handler);
+    signal(SIGTERM, sig_handler);
+
+    /*-----------------------------------*/
+
+    cout << "\n\nCreating Modules............";
+
+    /* Instantiate Modules */
+    Memory mem("main_memory");
+    CPU    cpu("cpu");
+
+    /* Signals */
+    sc_signal<Memory::Function>  sigMemFunc;
+    sc_signal<Memory::RETSignal> sigMemDone;
+    sc_signal<int>               sigMemAddr;
+    sc_signal<int>               sigMemData_write, sigMemData_read;
+
+    /* The clock that will drive the CPU and Memory*/
+    sc_clock clk;
+
+    /*-----------------------------------*/
+
+    cout << "DONE\nConnecting Modules' Ports...";
+
+    /* Connecting module ports with signals */
+    mem.Port_Func(sigMemFunc);
+    mem.Port_Addr(sigMemAddr);
+    mem.Port_Data_in(sigMemData_write);
+    mem.Port_Data_out(sigMemData_read);
+    mem.Port_DoneSig(sigMemDone);
+
+    cpu.Port_MemFunc(sigMemFunc);
+    cpu.Port_MemAddr(sigMemAddr);
+    cpu.Port_MemData_out(sigMemData_write);
+    cpu.Port_MemData_in(sigMemData_read);
+    cpu.Port_MemDone(sigMemDone);
+
+    mem.Port_CLK(clk);
+    cpu.Port_CLK(clk);
+
+    cout << "DONE\n" << endl;
+
+    /*-----------------------------------*/
+
+#if defined(PRINT_WHILE_RUN)
+    cout << "\nWhile running press CTRL+C to exit.\n" 
+         << "Press Enter to start...";
+
+    getchar();
+    cout << endl << endl;
+#else
+    cout << "\nPress Enter to start...";
+    getchar();
+    cout << "\n\nRunning (press CTRL+C to exit)... ";
+#endif
+
+    fflush(stdout);
+
+
+    /* Start Simulation */
+    sc_start();
+
+    /* Show Results */
+
+    cout << "\n   Simulation Time       : " << sc_time_stamp()  << endl
+         << "   Delta Cycles Executed : "   << sc_delta_count() << endl << endl;
+
+    cout << "   Total Memory Requests : " << mem.getRequestsCount() << endl
+         << "   Memory READs          : " << mem.getReadsCount()    << endl
+         << "   Memory WRITEs         : " << mem.getWritesCount()   << endl
+         << "   Invalid Accesses      : " << mem.getErrorsCount()   << endl;
+
+    cout << "\nPress Enter to exit...";
+    getchar();
+    cout << endl << endl;
+
+    return 0;
+}

@@ -1,0 +1,11 @@
+These are attempts to use the PLL block in the TUV_AMS_Library BB
+
+V0 just called the PLL and got the error 
+Error: SystemC-AMS: Method set_delay of port: pll1.vco_sub.sca_tdf_out_0 
+can only be called in the context of set_attributes of the parent module 
+(see LRM clause 4.1.1.4.5, 4.1.1.5.5)
+In file: /home/steve/SystemC/systemc-ams-1.0Beta2/include/scams/impl/predefined_moc/tdf/sca_tdf_port_impl.h:414
+
+V1 took a copy of the PLL code and attempted to hack the set_delay problem
+unsucessfully.
+

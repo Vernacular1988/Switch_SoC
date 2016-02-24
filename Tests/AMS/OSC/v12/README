@@ -1,0 +1,64 @@
+These are attempts to use the PLL block in the TUV_AMS_Library BB
+
+V0 just called the PLL and got the error 
+Error: SystemC-AMS: Method set_delay of port: pll1.vco_sub.sca_tdf_out_0 
+can only be called in the context of set_attributes of the parent module 
+(see LRM clause 4.1.1.4.5, 4.1.1.5.5)
+In file: /home/steve/SystemC/systemc-ams-1.0Beta2/include/scams/impl/predefined_moc/tdf/sca_tdf_port_impl.h:414
+
+V1 took a copy of the PLL code and attempted to hack the set_delay problem
+unsucessfully.
+
+V2 added an explicit delay element into the PLL in a flat version of
+everything this worked after fixing the code to insert the initial
+value to the output (which is needed since there is a delay) one must
+use out.initialize(value) vs out.write(value) to set the value on port
+"out".
+
+V3 is to package that back up, which is not easy - so the delay and
+sink are clearly done, but the pll is still a problem. basically
+hierarhcy for analog blocks are not supported. So the Pll needs to be
+in a digital block (or in an analog block in a digital block) and then
+the rest need to be in another block and then connected with digital
+signals. (for V4..)
+
+V4 does build hierarchy but not with sc_signals. It has one
+interconnect between a top module and a drain. in the top modudule is
+the sin source and the pll the pll is a sc_module (not sca_) and
+therefor it can have hierarchy too.  (which is the way it is in the
+original librarary - but i missed that) So the pll (my_pll) has the
+four component (it has the delay element)
+
+V5 has 3 plls (it did have two) each sending its output to the next
+(1->2) in round robin. This does not converge, they just chase each
+other around in phase/freqency space.
+
+...
+
+v8 has working models where each osc has the input
+weights/multiply/add inputs for every other output using for() loops
+to instantiate the correct number of oscilators and inputs for each
+oscilator. size.h has the size of the array. it also has the 90 degree
+phase delay on the output of each oscilator which is essential to
+getting them to converge and lock in on phase. a_delay.h con.h were
+created along the way to add delays and constant signals (I don't know
+a better way to do either of these tasks). A copy of a_vco was needed
+to enable us to set the initial phase of the oscilator. The circuit
+archtecture follows: F. C. Hoppensteadt and E. M. Izhikevich,
+Phys. Rev. Lett. 82, 1983 (1999) and later publications.
+
+v9 will address the feedback more .. should it be raw oscilator
+voltages or a low pass version of that? the vco input is looking for
+"frequency" Also the "input pattern" should be voltages or oscilations
+or phases? Also, Dimitri said he can get convergence in a cycle or
+two. I see it taking 20 or more.
+
+--------
+V12 is a switch to an oscilator based model rather then a true PLL
+9/15/2011
+
+
+
+
+
+

@@ -1,0 +1,42 @@
+[timestart] 0
+[size] 1105 705
+[pos] -1 -1
+*-25.883890 123200000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+@90028
+SystemC_AMS.phcf0
+@20000
+-
+@90028
+SystemC_AMS.phcf1
+@20000
+-
+@90028
+SystemC_AMS.phcf2
+@20000
+-
+@90028
+SystemC_AMS.phcf3
+@20000
+-
+@90028
+SystemC_AMS.phcf4
+@20000
+-
+@90028
+SystemC_AMS.phcf5
+@20000
+-
+@90028
+SystemC_AMS.phcf6
+@20000
+-
+@90028
+SystemC_AMS.phcf7
+@20000
+-
+@90028
+SystemC_AMS.phcf8
+@20000
+-
+[pattern_trace] 1
+[pattern_trace] 0

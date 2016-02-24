@@ -1,0 +1,27 @@
+[timestart] 0
+[size] 1000 599
+[pos] -1 -1
+*-17.809891 500000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+@10028
+SystemC_AMS.o11
+@10029
+SystemC_AMS.o12
+@10028
+SystemC_AMS.o21
+SystemC_AMS.o22
+SystemC_AMS.v0
+@20000
+-
+-
+@10028
+SystemC_AMS.v1
+@20000
+-
+-
+@10028
+SystemC_AMS.v2
+@20000
+-
+-
+[pattern_trace] 1
+[pattern_trace] 0

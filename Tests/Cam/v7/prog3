@@ -1,0 +1,23 @@
+WRITE  0 0                0792cf3861cf349e 0
+WRITE  0 0                031cf0c30c30c33f 1
+WRITE  0 0                07bfcc30c6318fff 2
+WRITE  0 0                07b3cc31c70f3cde 3
+WRITE  0 0                018e7b69bffc6186 4
+WRITE  0 0                0fffc3cf870f3fde 5
+WRITE  0 0                07bfc30fbfcf3fde 6
+WRITE  0 0                0fff1c630c618c30 7
+WRITE  0 0                07bfcf379ecf3fde 8
+WRITE  0 0                07bfcf3fdf0c3fde 9
+WRITE  0 0                07bfcf3cffff3cf3 A
+WRITE  0 0                0fbfcf3fffcf3ffe B
+WRITE  0 0                07bfcf0c30c33ffe C
+WRITE  0 0                0f3ecf3cf3cf3fbc D
+WRITE  0 0                0fffc30fbec30fff E
+WRITE  0 0                0fffc30fbec30c30 F
+HAMM   0 07B3CF0FC7CF3CDE 0                0 
+STAG   0 0                0                0
+READNB 0 0                0                0
+READNB 0 0                0                0
+READNB 0 0                0                0
+READNB 0 0                0                0
+

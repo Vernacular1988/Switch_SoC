@@ -1,0 +1,35 @@
+CC = g++
+OPT =
+DEBUG = -g
+SYSTEMC = /home/steve/SystemC/systemc-2.2.0
+TARGET_ARCH = linux64
+INCDIR = -I. -I.. -I$(SYSTEMC)/include 
+LIBDIR = -L. -L.. -L$(SYSTEMC)/lib-$(TARGET_ARCH)
+#CFLAGS = -Wall $(DEBUG) $(OPT) $(INCDIR) $(LIBDIR)
+#CFLAGS = $(INCDIR) $(LIBDIR)
+#CFLAGS = -Wall $(DEBUG) $(OPT)
+LIBS = -lsystemc -lm $(EXTRA_LIBS)
+
+EXE    = $(MODULE).x
+
+.SUFFIXES: .cc .cpp .o .x
+
+$(EXE): $(OBJS) $(SYSTEMC)/lib-$(TARGET_ARCH)/libsystemc.a 
+	$(CC) $(CFLAGS) $(INCDIR) $(LIBDIR) -o $@ $(OBJS) $(LIBS) 2>&1 | c++filt
+
+.cpp.o:
+	$(CC) $(CFLAGS) $(INCDIR) -c $<
+
+.cc.o:
+	$(CC) $(CFLAGS) $(INCDIR) -c $<
+
+clean:
+	rm -f $(OBJS) *~ $(EXE) core
+
+ultraclean: clean
+	rm -f Makefile.deps
+
+Makefile.deps: $(SOURCES)
+	$(CC) $(CFLAGS) $(INCDIR) -M $(SRCS) >> Makefile.deps
+
+include ./Makefile.deps

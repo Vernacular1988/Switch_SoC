@@ -1,0 +1,5 @@
+# use larger fonts for readibility and printing
+# note signal names must be larger than waves
+fontname_signals 10x20
+fontname_waves 9x15
+#

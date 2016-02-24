@@ -1,0 +1,141 @@
+//mem.h 
+//This head file defines the model structture of memory
+
+
+#include <systemc.h>
+#include <signal.h>
+
+//Defined the flag of printing while running, if defined, program outputs more information 
+#define PRINT_WHILE_RUN 
+
+//If defined, the randomly address generation functionn may output illegal addresses which lead to error
+#define GEN_INVALID_ADDRESSES
+
+
+//Size of memory
+#define MEM_SIZE              512
+
+// Error code when illegal address checked
+#define MEM_ERR_INV_ADDRESS   1
+
+
+//Module defination of Memory
+SC_MODULE(Memory) {
+
+public:
+    /* Types */
+
+//We comment these two enum type varibles for trace file display because vcd format file does not support enum type
+//Assume they are replaced by int type from 0 to 4
+
+
+/*    enum Function {
+        FUNC_NONE,
+        FUNC_READ,
+        FUNC_WRITE
+    };
+
+    enum RETSignal {
+        RSIG_NONE,
+        RSIG_READ_FIN,
+        RSIG_WRITE_FIN,
+        RSIG_ERROR
+    }; */
+
+    /* Ports */
+
+    sc_in<bool>       Port_CLK;		//clock 
+    sc_in<int>        Port_Func;	//instruction input, from CPU, NONE-0, READ-1, WRITE-2
+
+    sc_in<int>        Port_Addr;	//operation address input
+
+    sc_in<int>     Port_Data_in;	//Data input for writing
+    sc_out<int>   Port_Data_out;	//Data OUTput for reading
+
+    sc_out<int>   Port_DoneSig;		//finish signal output to CPU, NONE-0, READ-1, WRITE-2, ERROR-3
+
+    /* Constructor */
+    SC_CTOR(Memory) {
+        /* Setup Module's Method Process */
+
+        SC_METHOD(execute);     
+        sensitive << Port_CLK.neg();
+
+        /* Data members Initialization */
+        m_clkCnt  = 0;
+        m_curAddr = 0;
+        m_curData = 0;
+        m_curFunc = 0;
+
+        m_data = new int[MEM_SIZE];
+
+        /* Initialize Counters */
+        m_writesCnt = 0;
+        m_readsCnt  = 0;
+        m_errorsCnt = 0;
+        m_errorCode = 0;
+    }
+
+//Destructor
+    ~Memory() {
+        delete [] m_data;
+    }
+
+    /* Other Functions for access some private members of module*/
+
+    int getErrorCode() {
+        return m_errorCode;
+    }
+
+    int getWritesCount() {
+        return m_writesCnt;
+    }
+
+    int getReadsCount() {
+        return m_readsCnt;
+    }
+
+    int getErrorsCount() {
+        return m_errorsCnt;
+    }
+
+    int getRequestsCount() {
+        return m_readsCnt  +
+               m_writesCnt + m_errorsCnt;
+    }
+
+
+private:
+    /* Data Members */
+
+    int       m_clkCnt;  //Counter -- counting clock number
+    int       m_curAddr; //Pointer to current address
+    int       m_curData; //Current input data for writing
+    Function  m_curFunc; //Current instruction from CPU
+
+
+    int* m_data;        //Whole memory entity
+    int  m_errorCode;   //error code for output
+
+    int  m_writesCnt;	//count Writes
+    int  m_readsCnt;	//count Reads
+    int  m_errorsCnt;	//count error
+
+
+    /* Functions -- implemented in mem.cc */
+
+
+
+    /**
+     * Checks if the address
+     * is valid.
+     */
+    void checkAddress();
+
+    /**
+     * Performs the
+     * READ function.
+     */
+
+    RETSignal read();
+

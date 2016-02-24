@@ -1,0 +1,36 @@
+[timestart] 0
+[size] 1626 600
+[pos] -1 -1
+*-22.002535 11440000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+@90029
+SystemC_AMS.lpf0
+@a0001
+-
+-
+@90029
+SystemC_AMS.lpf1
+@a0001
+-
+-
+@90029
+SystemC_AMS.lpf2
+@a0001
+-
+-
+@90029
+SystemC_AMS.vco0
+@a0001
+-
+-
+@90029
+SystemC_AMS.vco1
+@a0001
+-
+-
+@88029
+SystemC_AMS.vco2
+@20000
+-
+-
+[pattern_trace] 1
+[pattern_trace] 0

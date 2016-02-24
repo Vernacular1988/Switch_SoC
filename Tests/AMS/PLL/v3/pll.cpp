@@ -1,0 +1,52 @@
+//pll.cpp
+#include "pll.h"
+// note this is a minor rewite of the pll in the tuv_ams bb library
+//
+// need an explicity delay element
+//
+  void a_delay::set_attributes() {
+    outp.set_delay(delay);
+  }
+
+  // note this cannot be a outp.write(initial)
+  void a_delay::initialize()  {
+    outp.initialize(initial);
+  }
+
+  void a_delay::processing() {
+    outp.write(inp.read());
+  }
+
+  // SCA_CTOR(a_delay) {} // below gives way to set values from parent 
+
+  a_delay::a_delay(sc_core::sc_module_name n, double _init, int _delay) {
+    initial=_init;
+    delay=_delay;
+  }
+
+//
+
+/*****************************PLL***************************************/
+
+// my_pll::my_pll(sc_core::sc_module_name n,double phc_gain,
+// 	       double lp_fc,double vco_freq,double kvco,
+// 	       double vco_gain,int vco_out_rate,int phc_out_rate) {
+
+//       phc_sub = new phc("phc_sub",phc_out_rate,phc_gain);
+//       phc_sub->in_ref(ref);
+//       phc_sub->in_vco(vcod);
+//       phc_sub->out(pco);
+
+//       lp_sub = new lp("lp_sub",lp_fc);
+//       lp_sub->in(pco);
+//       lp_sub->out(lpo);
+
+//       vco_sub = new a_vco("vco_sub",vco_freq,vco_out_rate,kvco,vco_gain);
+//       vco_sub->in(lpo);
+//       vco_sub->out(vcoo);
+
+//       //vco_delay = new a_delay("vco_delay", 0.0, 1);
+//       //vco_delay->inp(vcod);
+//       //vco_delay->outp(vcoo);
+
+// }

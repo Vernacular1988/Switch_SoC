@@ -1,0 +1,23 @@
+// readme
+// levitan@pitt.edu 10/15/2011
+//
+// oscilator model tests based on inverter macro model
+// inverter is modeled as a transfer function of the form erfc (int of gauss)
+// need to add a delay to this transfer in order to allow system-c ams 
+// simulation using TDF model of compuation.
+// Using TDF vs trying to use ELN (conservative electrical) since the solver
+// for ELN is only good for linear circuts. We can add eln components as a
+// linear network in the feedback of the inverter to make an oscilator
+// therefore the two models (TDF inverter+delay and ELN feedback) give a
+// non-linear oscilator. 
+//
+// for new system-c/ams users, it is important to note the different types
+// of models used in the different files and the different types of signals
+// (ports) between them. 
+//
+// we also look at coupling oscilators 
+//
+// v1 - all the pieces 
+// v2 - cleaner version of oscilator hierarchy with coupling resistors 
+// v3 - more cleaup (remove explicit delay)
+//

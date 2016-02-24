@@ -1,0 +1,18 @@
+[timestart] 0
+[size] 1000 600
+[pos] -1 -1
+*-22.312391 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+@90028
+SystemC_AMS.lpf_out
+@20000
+-
+@90028
+SystemC_AMS.source
+@20000
+-
+@90028
+SystemC_AMS.vco_out_delay
+@20000
+-
+[pattern_trace] 1
+[pattern_trace] 0

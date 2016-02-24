@@ -1,0 +1,1 @@
+A detail description of the example can be found in the documentation of the TU Vienna SystemC AMS communications library.
